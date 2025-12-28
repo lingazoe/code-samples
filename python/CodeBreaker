@@ -1,0 +1,100 @@
+# Name : Zoe Linga
+# Email : lingazoe@yorku.ca
+# Student ID: 220610960
+
+import random
+
+class CodeBreaker:
+
+    def __init__(self, code_length=4, digit_min=1, digit_max=8, max_attempts=10):
+
+        self.code_length = code_length
+        self.digit_min = digit_min
+        self.digit_max = digit_max
+        self.max_attempts = max_attempts
+
+        self.history = {}
+
+        self.secret_code = self._generate_secret_code()
+
+    def _generate_secret_code(self):
+
+        secret_code = ''
+
+        for i in range(self.code_length):
+            digit = random.randint(self.digit_min, self.digit_max)
+            secret_code += str(digit)
+
+        return secret_code
+
+    def _get_player_guess(self):
+
+        while True:
+            user_guess = input(f'Enter your {self.code_length}-digit guess: ')
+            if user_guess.isdigit():
+                user_guess = str(user_guess)
+                break
+            else:
+                print('This is not a valid guess.')
+
+        count = 0
+
+        while count < self.code_length:
+            if int(user_guess[count]) < self.digit_min or int(user_guess[count]) > self.digit_max or len(user_guess) != self.code_length:
+                user_guess = input('Please enter a valid guess: ')
+                user_guess = str(user_guess)
+                count = 0
+            else:
+                count += 1
+
+        return user_guess
+
+    def _generate_feedback(self, guess):
+
+        feedback = ''
+        temp_code = self.secret_code
+
+        for i in range(len(guess)):
+            count = 0
+            while count < self.code_length:
+                if guess[i] == temp_code[count]:
+                    if i == count:
+                        feedback = 'X' + feedback
+                    else:
+                        feedback = feedback + 'O'
+                    temp_code = temp_code[:count] + '0' + temp_code[count + 1:]
+                    break
+                count += 1
+        return feedback
+
+    def play(self):
+
+        check_attempts = 1
+
+        print("-- Welcome to Code Breaker --")
+        print(f"I have generated a secret {self.code_length}-digit code. Each digit is between {self.digit_min} and {self.digit_max}.")
+        print(f"You have {self.max_attempts} attempts to guess it.\n")
+
+        print("Feedback: 'X' for the correct digit in the correct position.")
+        print("\t\t  'O' for the correct digit in the wrong position.\n")
+
+        while check_attempts <= self.max_attempts:
+
+            print(f"Attempt {check_attempts}/{self.max_attempts}")
+
+            guess = self._get_player_guess()
+            feedback = self._generate_feedback(guess)
+            print(f"Feedback for {guess}: {feedback}\n")
+            self.history[check_attempts] = (guess, feedback)
+
+            if feedback == 'XXXX':
+                print(f'Congratulations! You guessed the code correctly in {check_attempts} attempt(s)!')
+                break
+
+            check_attempts += 1
+
+        if check_attempts == self.max_attempts:
+            print(f'Max attempts reached. The secret code was {self.secret_code}. Better luck next time!')
+
+start = CodeBreaker()
+start.play()
